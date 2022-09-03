@@ -1,5 +1,5 @@
-#ifndef MYSLAM_G2O_TYPES_H
-#define MYSLAM_G2O_TYPES_H
+#ifndef MYSLAM_G2O_TYPES_HPP
+#define MYSLAM_G2O_TYPES_HPP
 
 #include "common_include.hpp"
 #include "camera.hpp"
