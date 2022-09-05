@@ -8,16 +8,16 @@ namespace myslam{
     class Frame;
     class MapPoint{
         public:
-            typedef std::shared_ptr<MapPoint>    Ptr;
-            unsigned long                   id_;        // ID
-            static unsigned long            factory_id_;    // factory id
-            bool                            good_;      // wheter a good point 
-            Vector3f                 pos_;       // Position in world
-            Vector3f                 norm_;      // Normal of viewing direction 
-            cv::Mat                         descriptor_; // Descriptor for matching 
-            std::list<Frame*>                    observed_frames_;   // key-frames that can observe this point 
-            int                             matched_times_;     // being an inliner in pose estimation
-            int                             visible_times_;     // being visible in current frame 
+            typedef std::shared_ptr<MapPoint>   Ptr;
+            unsigned long                       id_;        // ID
+            static unsigned long                factory_id_;    // factory id
+            bool                                good_;      // wheter a good point 
+            Vector3f                            pos_;       // Position in world
+            Vector3f                            norm_;      // Normal of viewing direction 
+            cv::Mat                             descriptor_; // Descriptor for matching 
+            std::list<Frame*>                   observed_frames_;   // key-frames that can observe this point 
+            int                                 matched_times_;     // being an inliner in pose estimation
+            int                                 visible_times_;     // being visible in current frame 
             
             MapPoint();
             MapPoint( 

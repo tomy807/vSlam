@@ -24,7 +24,6 @@ namespace myslam {
         public: 
             Frame();
             Frame( long id, double time_stamp=0, SE3 T_c_w=SE3(), Camera::Ptr camera=nullptr, cv::Mat color=cv::Mat(),cv::Mat depth=cv::Mat() );
-            ~Frame();
             
             static Frame::Ptr createFrame(); 
             
