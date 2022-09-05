@@ -16,8 +16,9 @@ include_directories( "/usr/include/eigen3" )
 find_package( OpenCV 4 REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 # Sophus 
+
 find_package( Sophus REQUIRED )
-include_directories( ${Sophus_INCLUDE_DIRS} )
+include_directories("/usr/local/include/sophus")
 # G2O
 find_package( G2O REQUIRED )
 include_directories( ${G2O_INCLUDE_DIRS} )

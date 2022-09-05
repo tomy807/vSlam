@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include "common_include.hpp" 
+#include "common_include.h" 
 
 namespace myslam {
     class Config {
@@ -12,17 +12,16 @@ namespace myslam {
             Config () {
             } 
         public:
-            ~Config(){
-                if ( file_.isOpened() ){
-                    file_.release();}
-            }
+            ~Config();
             
             static void setParameterFile( const std::string& filename ); 
             
             template< typename T >
             static T get( const std::string& key )
             {
-                return T( Config::config_->file_[key] );
+                T result;
+                Config::config_->file_[key] >> result;
+                return result;                
             }
     };
 }

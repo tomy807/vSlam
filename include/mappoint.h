@@ -1,29 +1,29 @@
 #ifndef MAPPOINT_HPP
 #define MAPPOINT_HPP
 
-#include "common_include.hpp"
+#include "common_include.h"
 
 namespace myslam{
     
     class Frame;
     class MapPoint{
         public:
-            typedef shared_ptr<MapPoint>    Ptr;
+            typedef std::shared_ptr<MapPoint>    Ptr;
             unsigned long                   id_;        // ID
             static unsigned long            factory_id_;    // factory id
             bool                            good_;      // wheter a good point 
-            Eigen::Vector3d                 pos_;       // Position in world
-            Eigen::Vector3d                 norm_;      // Normal of viewing direction 
+            Vector3f                 pos_;       // Position in world
+            Vector3f                 norm_;      // Normal of viewing direction 
             cv::Mat                         descriptor_; // Descriptor for matching 
-            list<Frame*>                    observed_frames_;   // key-frames that can observe this point 
+            std::list<Frame*>                    observed_frames_;   // key-frames that can observe this point 
             int                             matched_times_;     // being an inliner in pose estimation
             int                             visible_times_;     // being visible in current frame 
             
             MapPoint();
             MapPoint( 
                 unsigned long id, 
-                const Eigen::Vector3d& position, 
-                const Eigen::Vector3d& norm, 
+                const Vector3f& position, 
+                const Vector3f& norm, 
                 Frame* frame=nullptr, 
                 const cv::Mat& descriptor=cv::Mat() 
             );
@@ -34,8 +34,8 @@ namespace myslam{
             
             static MapPoint::Ptr createMapPoint();
             static MapPoint::Ptr createMapPoint( 
-            const Eigen::Vector3d& pos_world, 
-            const Eigen::Vector3d& norm_,
+            const Vector3f& pos_world, 
+            const Vector3f& norm_,
             const cv::Mat& descriptor,
             Frame* frame );
     };

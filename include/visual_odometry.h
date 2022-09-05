@@ -1,15 +1,15 @@
 #ifndef VISUALODOMETRY_HPP
 #define VISUALODOMETRY_HPP
 
-#include "common_include.hpp"
-#include "map.hpp"
+#include "common_include.h"
+#include "map.h"
 
 #include <opencv2/features2d/features2d.hpp>
 
 namespace myslam {
     class VisualOdometry{
         public:
-            typedef shared_ptr<VisualOdometry> Ptr;
+            typedef std::shared_ptr<VisualOdometry> Ptr;
             enum VOState {
                 INITIALIZING=-1,
                 OK=0,
@@ -21,12 +21,12 @@ namespace myslam {
             Frame::Ptr              ref_;       // reference key-frame 
             Frame::Ptr              curr_;      // current frame 
             cv::Ptr<cv::ORB>        orb_;  // orb detector and computer 
-            vector<cv::KeyPoint>    keypoints_curr_;    // keypoints in current frame
-            Mat                     descriptors_curr_;  // descriptor in current frame 
+            std::vector<cv::KeyPoint>    keypoints_curr_;    // keypoints in current frame
+            cv::Mat                     descriptors_curr_;  // descriptor in current frame 
             cv::FlannBasedMatcher   matcher_flann_;     // flann matcher
-            vector<MapPoint::Ptr>   match_3dpts_;       // matched 3d points 
-            vector<int>             match_2dkp_index_;  // matched 2d pixels (index of kp_curr)
-            SE3<float>              T_c_w_estimated_;    // the estimated pose of current frame 
+            std::vector<MapPoint::Ptr>   match_3dpts_;       // matched 3d points 
+            std::vector<int>             match_2dkp_index_;  // matched 2d pixels (index of kp_curr)
+            SE3              T_c_w_estimated_;    // the estimated pose of current frame 
             int                     num_inliers_;        // number of inlier features in icp
             int                     num_lost_;           // number of lost times
             // parameters 
