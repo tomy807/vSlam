@@ -5,10 +5,10 @@ dataset_dir: /home/tomy807/rgbd_dataset_freiburg1_xyz
 
 # camera intrinsics
 # fr1
-camera.fx: 517.3
-camera.fy: 516.5
-camera.cx: 325.1
-camera.cy: 249.7
+camera.fx: 525.0
+camera.fy: 525.0
+camera.cx: 319.5
+camera.cy: 239.5
 
 # fr2
 #camera.fx: 520.9

@@ -2,8 +2,12 @@
 #include "../include/config.h"
 #include "../include/camera.h"
 #include "../include/frame.h"
+#include "../include/mappoint.h"
+#include "../include/map.h"
 #include <fstream>
 #include <iostream>
+#include <opencv2/core/core.hpp>
+#include <opencv2/features2d/features2d.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -11,11 +15,13 @@
 
 
 using namespace myslam;
-// using namespace std;
+using namespace std;
 std::string filedir;
 std::string dataset_dir;
 std::vector<std::string> rgb_files, depth_files;
 std::vector<double> rgb_times, depth_times;
+Map::Ptr    map_;
+cv::Ptr<cv::ORB> orb_ = cv::ORB::create ( 500, 1.2, 4 );
 
 TEST(CONFIG,CONFIGTEST){
     
@@ -46,18 +52,18 @@ TEST(CONFIG,CONFIGTEST){
 
 TEST(CAMERA,CAMERATEST){
     Camera::Ptr camera ( new myslam::Camera );
-    cv::viz::Viz3d vis ( "Visual Odometry" );
-    cv::viz::WCoordinateSystem world_coor ( 1.0 ), camera_coor ( 0.5 );
-    cv::Point3d cam_pos ( 0, -1.0, -1.0 ), cam_focal_point ( 0,0,0 ), cam_y_dir ( 0,1,0 );
-    cv::Affine3d cam_pose = cv::viz::makeCameraPose ( cam_pos, cam_focal_point, cam_y_dir );
-    vis.setViewerPose ( cam_pose );
+    // cv::viz::Viz3d vis ( "Visual Odometry" );
+    // cv::viz::WCoordinateSystem world_coor ( 1.0 ), camera_coor ( 0.5 );
+    // cv::Point3d cam_pos ( 0, -1.0, -1.0 ), cam_focal_point ( 0,0,0 ), cam_y_dir ( 0,1,0 );
+    // cv::Affine3d cam_pose = cv::viz::makeCameraPose ( cam_pos, cam_focal_point, cam_y_dir );
+    // vis.setViewerPose ( cam_pose );
 
-    world_coor.setRenderingProperty ( cv::viz::LINE_WIDTH, 2.0 );
-    camera_coor.setRenderingProperty ( cv::viz::LINE_WIDTH, 1.0 );
-    vis.showWidget ( "World", world_coor );
-    vis.showWidget ( "Camera", camera_coor );
+    // world_coor.setRenderingProperty ( cv::viz::LINE_WIDTH, 2.0 );
+    // camera_coor.setRenderingProperty ( cv::viz::LINE_WIDTH, 1.0 );
+    // vis.showWidget ( "World", world_coor );
+    // vis.showWidget ( "Camera", camera_coor );
     std::cout<<"read total "<<rgb_files.size() <<" entries"<<std::endl;
-    for ( int i=0; i<rgb_files.size(); i++ )
+    for ( int i=0; i<10; i++ )
     {
         cv::Mat color = cv::imread ( rgb_files[i] );
         cv::Mat depth = cv::imread ( depth_files[i], -1 );
@@ -69,13 +75,144 @@ TEST(CAMERA,CAMERATEST){
         pFrame->depth_ = depth;
         pFrame->time_stamp_ = rgb_times[i];
 
-        cv::Mat img_show = color.clone();
-        cv::imshow ( "image", img_show );
-        cv::waitKey ( 1 );
-        vis.spinOnce ( 1, false );
+        // cv::Mat img_show = color.clone();
+        // cv::imshow ( "image", img_show );
+        // cv::waitKey ( 1 );
+        // vis.spinOnce ( 1, false );
     }
 }
 
-// TEST(FRAME,FRAMETEST){
+vector<cv::KeyPoint> extractKeyPoints(cv::Mat color)
+{
+    vector<cv::KeyPoint>    keypoints_curr_;
+    orb_->detect ( color, keypoints_curr_ );
+    return keypoints_curr_;
+}
+cv::Mat computeDescriptors(cv::Mat color,vector<cv::KeyPoint> keypoints_curr_)
+{   cv::Mat descriptors_curr_;
+    orb_->compute ( color, keypoints_curr_, descriptors_curr_ );
+    return descriptors_curr_;
+}
 
+TEST(FRAME,EXTRACTKEYPOINTandDEPTH){
+    cv::Mat color = cv::imread ( rgb_files[3] );
+    cv::Mat depth = cv::imread ( depth_files[3], -1 );
+    Camera::Ptr camera ( new myslam::Camera );
+    Frame::Ptr pFrame = Frame::createFrame();
+
+    pFrame->camera_ = camera;
+    pFrame->color_ = color;
+    pFrame->depth_ = depth;
+    pFrame->time_stamp_ = rgb_times[3];
+    vector<cv::KeyPoint> result=extractKeyPoints(color);
+    for(auto kp: result){
+        cout << cvRound(kp.pt.x) <<"  "<< cvRound(kp.pt.y)<< endl;
+    }
+    std::cout << pFrame->findDepth(result[0]) << std::endl;
+
+}
+
+TEST(FRAME,DESCRIPTOR){
+    cv::Mat color = cv::imread ( rgb_files[3] );
+    cv::Mat depth = cv::imread ( depth_files[3], -1 );
+    Camera::Ptr camera ( new myslam::Camera );
+    Frame::Ptr pFrame = Frame::createFrame();
+
+    pFrame->camera_ = camera;
+    pFrame->color_ = color;
+    pFrame->depth_ = depth;
+    pFrame->time_stamp_ = rgb_times[3];
+    vector<cv::KeyPoint> kps=extractKeyPoints(color);
+    auto descriptors=computeDescriptors(color,kps);
+    EXPECT_EQ(descriptors.rows,kps.size());
+
+}
+
+// void addMapPoints()
+// {
+//     // add the new map points into map
+//     vector<bool> matched(keypoints_curr_.size(), false); 
+//     for ( int index:match_2dkp_index_ )
+//         matched[index] = true;
+//     for ( int i=0; i<keypoints_curr_.size(); i++ )
+//     {
+//         if ( matched[i] == true )   
+//             continue;
+//         double d = curr_->findDepth ( keypoints_curr_[i] );
+//         if ( d<0 )  
+//             continue;
+//         Vector3d p_world = ref_->camera_->pixel2world (
+//             Vector2d ( keypoints_curr_[i].pt.x, keypoints_curr_[i].pt.y ), 
+//             curr_->T_c_w_, d
+//         );
+//         Vector3d n = p_world - ref_->getCamCenter();
+//         n.normalize();
+//         MapPoint::Ptr map_point = MapPoint::createMapPoint(
+//             p_world, n, descriptors_curr_.row(i).clone(), curr_.get()
+//         );
+//         map_->insertMapPoint( map_point );
+//     }
 // }
+
+void featureMatching(vector<cv::KeyPoint> kps1,cv::Mat descpritors1,vector<cv::KeyPoint> kps2,cv::Mat descpritors2)
+{
+    cv::FlannBasedMatcher   matcher_flann_(new cv::flann::LshIndexParams ( 5,10,2 ));
+    vector<cv::DMatch> matches;
+    // select the candidates in map 
+    vector<cv::KeyPoint> candidate={};
+    for ( auto& allpoints: kps2 )
+    {
+            // add to candidate 
+            candidate.push_back( allpoints );
+    }
+    
+    
+    matcher_flann_.match ( descpritors1, descpritors2, matches );
+    // select the best matches
+    float min_dis = std::min_element (
+                        matches.begin(), matches.end(),
+                        [] ( const cv::DMatch& m1, const cv::DMatch& m2 )
+    {
+        return m1.distance < m2.distance;
+    } )->distance;
+
+    vector<int> match_2dkp_index_={};
+    for ( cv::DMatch& m : matches )
+    {
+        if ( m.distance < max<float> ( min_dis*2.0, 30.0 ) )
+        {
+            match_2dkp_index_.push_back( m.trainIdx );
+        }
+    }
+    cout<<"good matches: "<<match_2dkp_index_.size() <<endl;
+}
+
+TEST(MAPPOINT,FEATUREMATCHING){
+    cv::Mat color = cv::imread ( rgb_files[3] );
+    cv::Mat depth = cv::imread ( depth_files[3], -1 );
+    Camera::Ptr camera ( new myslam::Camera );
+    Frame::Ptr pFrame = Frame::createFrame();
+
+    pFrame->camera_ = camera;
+    pFrame->color_ = color;
+    pFrame->depth_ = depth;
+    pFrame->time_stamp_ = rgb_times[3];
+    vector<cv::KeyPoint> kps1=extractKeyPoints(color);
+    auto descriptors1=computeDescriptors(color,kps1);
+
+    cv::Mat color1 = cv::imread ( rgb_files[5] );
+    cv::Mat depth1 = cv::imread ( depth_files[5], -1 );
+    Frame::Ptr pFrame1 = Frame::createFrame();
+
+    pFrame1->camera_ = camera;
+    pFrame1->color_ = color1;
+    pFrame1->depth_ = depth1;
+    pFrame1->time_stamp_ = rgb_times[3];
+    vector<cv::KeyPoint> kps2=extractKeyPoints(color1);
+    auto descriptors2=computeDescriptors(color1,kps2);
+    cout << kps1.size() << endl;
+    cout << kps2.size() << endl;
+
+    featureMatching(kps1,descriptors1,kps2,descriptors2);
+}
+
