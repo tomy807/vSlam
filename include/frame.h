@@ -29,11 +29,11 @@ namespace myslam {
             
             double findDepth( const cv::KeyPoint& kp );
             
-            Vector3f getCamCenter() const;
+            Vector3d getCamCenter() const;
             
             void setPose( const SE3& T_c_w );
             
-            bool isInFrame( const Vector3f& pt_world );
+            bool isInFrame( const Vector3d& pt_world );
     };
 
 }

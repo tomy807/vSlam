@@ -20,8 +20,8 @@ include_directories( ${OpenCV_INCLUDE_DIRS} )
 find_package( Sophus REQUIRED )
 include_directories("/usr/local/include/sophus")
 # G2O
-find_package( G2O REQUIRED )
-include_directories( ${G2O_INCLUDE_DIRS} )
+# find_package( G2O REQUIRED )
+# include_directories( ${PROJECT_SOURCE_DIR}/3rdparty/g2o/lib/libg2o.so )
 
 # set( THIRD_PARTY_LIBS 
 #     ${OpenCV_LIBS}
