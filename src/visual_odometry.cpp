@@ -174,21 +174,15 @@ void VisualOdometry::poseEstimationPnP()
                            SO3_R,
                            Vector3d ( tvec.at<double> ( 0,0 ), tvec.at<double> ( 1,0 ), tvec.at<double> ( 2,0 ) )
                        );
-    
-    // using bundle adjustment to optimize the pose
-    // typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,2>> Block;
-    // Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-    // Block* solver_ptr = new Block ( linearSolver );
-    // g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-    // g2o::SparseOptimizer optimizer;
-    // optimizer.setAlgorithm ( solver );
 
-    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6,3>> Block;
-    Block::LinearSolverType* linearSolver = new g2o::LinearSolverDense<Block::PoseMatrixType>();
-    Block* solver_ptr = new Block ( linearSolver );
-    g2o::OptimizationAlgorithmLevenberg* solver = new g2o::OptimizationAlgorithmLevenberg ( solver_ptr );
-    g2o::SparseOptimizer optimizer;
-    optimizer.setAlgorithm ( solver );
+    typedef g2o::BlockSolver<g2o::BlockSolverTraits<6, 3>> BlockSolverType;  // pose is 6, landmark is 3
+    typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType> LinearSolverType; // Linear solver type
+
+    auto solver = new g2o::OptimizationAlgorithmLevenberg(
+    g2o::make_unique<BlockSolverType>(g2o::make_unique<LinearSolverType>()));
+    g2o::SparseOptimizer optimizer;     // graph model
+    optimizer.setAlgorithm(solver);   // Set up the solver
+    optimizer.setVerbose(true);       // Turn on debug output
 
     g2o::VertexSE3Expmap* pose = new g2o::VertexSE3Expmap();
     pose->setId ( 0 );

@@ -2,7 +2,7 @@
 using namespace myslam;
 void EdgeProjectXYZRGBD::computeError()
 {
-    const g2o::VertexSBAPointXYZ* point = static_cast<const g2o::VertexSBAPointXYZ*> ( _vertices[0] );
+    const g2o::VertexPointXYZ* point = static_cast<const g2o::VertexPointXYZ*> ( _vertices[0] );
     const g2o::VertexSE3Expmap* pose = static_cast<const g2o::VertexSE3Expmap*> ( _vertices[1] );
     _error = _measurement - pose->estimate().map ( point->estimate() );
 }
@@ -11,7 +11,7 @@ void EdgeProjectXYZRGBD::linearizeOplus()
 {
     g2o::VertexSE3Expmap* pose = static_cast<g2o::VertexSE3Expmap *> ( _vertices[1] );
     g2o::SE3Quat T ( pose->estimate() );
-    g2o::VertexSBAPointXYZ* point = static_cast<g2o::VertexSBAPointXYZ*> ( _vertices[0] );
+    g2o::VertexPointXYZ* point = static_cast<g2o::VertexPointXYZ*> ( _vertices[0] );
     Eigen::Vector3d xyz = point->estimate();
     Eigen::Vector3d xyz_trans = T.map ( xyz );
     double x = xyz_trans[0];
