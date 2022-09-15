@@ -15,7 +15,6 @@
 
 namespace myslam {
 /// vertex and edges used in g2o ba
-/// 位姿顶点
 class EdgeProjectXYZRGBD : public g2o::BaseBinaryEdge<3, Eigen::Vector3d, g2o::VertexPointXYZ, g2o::VertexSE3Expmap>
 {
 public:

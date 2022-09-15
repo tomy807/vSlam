@@ -5,3 +5,6 @@
 /cmake_modules
 /lib
 /3rdparty
+/config/coco.names
+/config/yolo4.cfg
+/config/yolov4.weights
