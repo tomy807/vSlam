@@ -33,5 +33,5 @@ Xiang Gao, Tao Zhang, Yi Liu, Qinrui Yan, 14 Lectures on Visual SLAM: From Theor
 
 2. Change Visualization to track and show features
 
-3. Add MobileNet for Object Detection
+3. Add Yolo4 for Object Detection
 
